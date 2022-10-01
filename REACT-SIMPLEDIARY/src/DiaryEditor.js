@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-const DiaryEditor = () => {
+const DiaryEditor = ({ onCreate }) => {
   //useRef를 사용하게 되면 레퍼런스 객체 React.MutableRefObject를 가져와 Dom 요소 접근 가능하게 됨
     //dom 요소(태그)에 ref로 접근
     const authorInput = useRef();
@@ -34,8 +34,13 @@ const DiaryEditor = () => {
       return;
     }
 
-    console.log(state);
+    onCreate(state.author, state.content, state.emotion);
     alert("저장 성공!");
+    setState({
+      author: '',
+      content: '',
+      emotion: 1
+    })
   };
 
   return (
