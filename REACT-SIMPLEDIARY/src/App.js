@@ -41,16 +41,32 @@ function App() {
       content,
       emotion,
       created_date,
-      id: dataId.current
+      id: dataId.current,
     };
     dataId.current += 1; //useRef는 0부터 시작해서 지속적으로 1을 추가할 수 있기 때문에 key값으로 사용
     setData([newItem, ...data]); //신규 데이터가 가장 처음에 들어가야 맨 위에 출력됨
-  }
+  };
+
+  const onRemove = (targetId) => {
+    console.log(`${targetId}가 삭제됨`);
+    const newDiaryList = data.filter((it) => it.id !== targetId); //삭제된 값을 필터로 걸러냄
+    setData(newDiaryList);
+  };
+
+  //수정으로 통해 변경된 값을 가져오기 위해 생성된 이벤트
+  const onEdit = (targetId, newContent) => {
+    setData(
+      data.map((it) =>
+        //변경된 게시글의 id와 일치하는 id가 있을 경우 새로운 컨텐츠를 입력, 아닐 경우 기존 데이터를 입력
+        it.id === targetId ? { ...it, content: newContent } : it
+      )
+    );
+  };
 
   return (
     <div className="App">
       <DiaryEditor onCreate={onCreate} />
-      <DiaryList diaryList={data} />
+      <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
     </div>
   );
 }
