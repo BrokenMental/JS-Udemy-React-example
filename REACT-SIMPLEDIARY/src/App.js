@@ -3,6 +3,7 @@ import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
 import LifeCycle from "./LifeCycle";
+import OptimizeTest from "./OptimizeTest";
 
 // const dummyList = [
 //   {
@@ -41,7 +42,7 @@ function App() {
 
   const getData = async () => {
     const res = await fetch(
-      "https://jsonplaceholder.typicode.com/comments"
+      "https://jsonplaceholder.typicode.com/comments" //jsonPlaceholder 사이트 활용
     ).then((res) => res.json());
 
     //배열 개수 자름
@@ -72,7 +73,6 @@ function App() {
   };
 
   const onRemove = (targetId) => {
-    console.log(`${targetId}가 삭제됨`);
     const newDiaryList = data.filter((it) => it.id !== targetId); //삭제된 값을 필터로 걸러냄
     setData(newDiaryList);
   };
@@ -97,8 +97,6 @@ function App() {
    * 함수를 반환하지 않고 '값'을 반환하기 때문에 함수로 사용하면 에러가 발생
    */
   const getDiaryAnalysis = useMemo(() => {
-    console.log("일기 분석 시작");
-
     const goodCount = data.filter((it) => it.emotion >= 3).length;
     const badCount = data.length - goodCount;
     const goodRatio = (goodCount / data.length) * 100;
@@ -109,6 +107,7 @@ function App() {
 
   return (
     <div className="App">
+      <OptimizeTest />
       <LifeCycle />
       <DiaryEditor onCreate={onCreate} />
       <div>전체 일기 : {data.length}</div>
