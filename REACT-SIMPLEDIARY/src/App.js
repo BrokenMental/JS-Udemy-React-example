@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
@@ -35,6 +35,29 @@ function App() {
 
   const dataId = useRef(0);
 
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    const res = await fetch(
+      "https://jsonplaceholder.typicode.com/comments"
+    ).then((res) => res.json());
+
+    //배열 개수 자름
+    const initData = res.slice(0, 20).map((it) => {
+      return {
+        author: it.email,
+        content: it.body,
+        emothion: Math.floor(Math.random() * 5) + 1, //1~5까지 랜덤 수
+        created_date: new Date().getTime(),
+        id: dataId.current++,
+      };
+    });
+
+    setData(initData);
+  };
+
   const onCreate = (author, content, emotion) => {
     const created_date = new Date().getTime();
     const newItem = {
@@ -64,10 +87,34 @@ function App() {
     );
   };
 
+  /*
+   * useMemo 함수(연산 최적화를 도와주는 함수, 중복 실행을 최적화할 때 사용)
+   * @param
+   * 1. 콜백함수
+   * 2. 변화를 지켜볼 데이터(해당 함수(여기서는 getDiaryAnalysis())를 실행하더라도 두번째 인자의 값이 변경될 경우에만 첫번째 인자, 콜백 함수를 실행)
+   * 
+   * @return
+   * 함수를 반환하지 않고 '값'을 반환하기 때문에 함수로 사용하면 에러가 발생
+   */
+  const getDiaryAnalysis = useMemo(() => {
+    console.log("일기 분석 시작");
+
+    const goodCount = data.filter((it) => it.emotion >= 3).length;
+    const badCount = data.length - goodCount;
+    const goodRatio = (goodCount / data.length) * 100;
+    return { goodCount, badCount, goodRatio };
+  }, [data.length]);
+
+  const { goodCount, badCount, goodRatio } = getDiaryAnalysis; //위에서 useMemo()를 사용했기 때문에 값으로 사용해야 함
+
   return (
     <div className="App">
       <LifeCycle />
       <DiaryEditor onCreate={onCreate} />
+      <div>전체 일기 : {data.length}</div>
+      <div>기분 좋은 일기 : {goodCount}</div>
+      <div>기분 나쁜 일기 : {badCount}</div>
+      <div>기분 좋은 일기 비율 : {goodRatio}</div>
       <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
     </div>
   );
