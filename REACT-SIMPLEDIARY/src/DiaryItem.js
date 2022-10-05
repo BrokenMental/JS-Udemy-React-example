@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const DiaryItem = ({
   onEdit,
@@ -9,6 +9,10 @@ const DiaryItem = ({
   emotion,
   id,
 }) => {
+  useEffect(() => {
+    console.log(`${id}번 째 아이템 랜더링`);
+  });
+
   const [isEdit, setIsEdit] = useState(false); //현재 수정중인지 확인
   const toggleIsEdit = () => setIsEdit(!isEdit); //현재값 변경
 
@@ -77,4 +81,4 @@ const DiaryItem = ({
   );
 };
 
-export default DiaryItem;
+export default React.memo(DiaryItem);

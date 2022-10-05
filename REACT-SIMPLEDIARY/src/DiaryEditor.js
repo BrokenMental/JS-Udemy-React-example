@@ -1,6 +1,12 @@
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const DiaryEditor = ({ onCreate }) => {
+  /*
+  useEffect(() => {
+    console.log("DiaryEditor 랜더링"); //앱이 시작되자마자 2번 호출되는 이유는 App.js(부모 컴포넌트)에서 data 변수 초기화시, onCreate함수 실행 후 setData를 실행하기 때문에 두번 호출 됨
+  });
+  */
+
   //useRef를 사용하게 되면 레퍼런스 객체 React.MutableRefObject를 가져와 Dom 요소 접근 가능하게 됨
     //dom 요소(태그)에 ref로 접근
     const authorInput = useRef();
@@ -95,4 +101,4 @@ const DiaryEditor = ({ onCreate }) => {
   );
 };
 
-export default DiaryEditor;
+export default React.memo(DiaryEditor);

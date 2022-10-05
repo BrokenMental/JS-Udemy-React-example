@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef, useState } from "react";
+import { useMemo, useEffect, useRef, useState, useCallback } from "react";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
@@ -59,7 +59,12 @@ function App() {
     setData(initData);
   };
 
-  const onCreate = (author, content, emotion) => {
+  /*
+   * useCallback
+   * - 메모이제이션 된 함수 재생성, 반환(두번째 인자로 들어간 값에 변화가 없으면 첫번째 함수를 재사용하게 도와주는 기능)
+   * - 두번째 인자가 빈 배열이면 앱 초기화시 한번만 동작
+   */
+  const onCreate = useCallback((author, content, emotion) => {
     const created_date = new Date().getTime();
     const newItem = {
       author,
@@ -69,30 +74,43 @@ function App() {
       id: dataId.current,
     };
     dataId.current += 1; //useRef는 0부터 시작해서 지속적으로 1을 추가할 수 있기 때문에 key값으로 사용
-    setData([newItem, ...data]); //신규 데이터가 가장 처음에 들어가야 맨 위에 출력됨
-  };
+    //setData([newItem, ...data]); //신규 데이터가 가장 처음에 들어가야 맨 위에 출력됨
+    setData((data) => [newItem, ...data]); //함수형 업데이트 방식 : setData에 콜백 함수형태로 반환 가능, useCallback 사용 시 맨 처음 랜더 된 후 기존 값을 유지하면서 새로운 값이 채워지게 하려면 이와 같이 사용
+  }, []);
 
-  const onRemove = (targetId) => {
+  const onRemove = useCallback((targetId) => {
+    /*
     const newDiaryList = data.filter((it) => it.id !== targetId); //삭제된 값을 필터로 걸러냄
     setData(newDiaryList);
-  };
+    */
+
+    setData((data) => data.filter((it) => it.id !== targetId));
+  }, []);
 
   //수정으로 통해 변경된 값을 가져오기 위해 생성된 이벤트
-  const onEdit = (targetId, newContent) => {
+  const onEdit = useCallback((targetId, newContent) => {
+    /*
     setData(
       data.map((it) =>
         //변경된 게시글의 id와 일치하는 id가 있을 경우 새로운 컨텐츠를 입력, 아닐 경우 기존 데이터를 입력
         it.id === targetId ? { ...it, content: newContent } : it
       )
     );
-  };
+    */
+
+    setData((data) =>
+      data.map((it) =>
+        it.id === targetId ? { ...it, content: newContent } : it
+      )
+    );
+  }, []);
 
   /*
    * useMemo 함수(연산 최적화를 도와주는 함수, 중복 실행을 최적화할 때 사용)
    * @param
    * 1. 콜백함수
    * 2. 변화를 지켜볼 데이터(해당 함수(여기서는 getDiaryAnalysis())를 실행하더라도 두번째 인자의 값이 변경될 경우에만 첫번째 인자, 콜백 함수를 실행)
-   * 
+   *
    * @return
    * 함수를 반환하지 않고 '값'을 반환하기 때문에 함수로 사용하면 에러가 발생
    */
